@@ -1,4 +1,5 @@
 #include "EventManager.h"
+#include "cJSON.h"
 
 /* char *EventData::ToString()
 {
