@@ -1,24 +1,6 @@
 #include "EventManager.h"
 #include "cJSON.h"
 
-/* char *EventData::ToString()
-{
-  cJSON *json = cJSON_CreateObject();
-
-  cJSON *status = cJSON_CreateString(EventStatusToString(_status));
-  cJSON_AddItemToObject(json, "status", status);
-
-  cJSON *type = cJSON_CreateNumber(_type);
-  cJSON_AddItemToObject(json, "type", type);
-
-  cJSON *subtype = cJSON_CreateNumber(_subtype);
-  cJSON_AddItemToObject(json, "subtype", subtype);
-
-  char *ret = cJSON_PrintUnformatted(json);
-  cJSON_Delete(json);
-  return ret;
-} */
-
 EventData *Subscriber::Next()
 {
   if (CurrentEvent != nullptr)
@@ -34,8 +16,6 @@ EventData *Subscriber::Next()
 
     if (!event->isStatus(EventWaitInvoke))
       continue;
-
-    // ESP_LOGI("EventManager", "%s", event->ToString());
 
     event->setStatus(EventInWork);
     CurrentEvent = event;
@@ -121,7 +101,7 @@ void EventManager::UnSubscribe(Subscriber *subscriber)
   sync_unlock();
 }
 
-EventData *EventManager::AddEvent(uint8_t type, uint8_t subtype, void *inputData, bool isRequest)
+EventData *EventManager::AddEvent(uint8_t type, uint8_t subtype, void *inputData, bool isRequest, void *additionalValue)
 {
   EventDataEditable *e = nullptr;
 
@@ -147,6 +127,7 @@ EventData *EventManager::AddEvent(uint8_t type, uint8_t subtype, void *inputData
   e->setValue(inputData);
   e->setStatus(EventWaitInvoke);
   e->setIsRequest(isRequest);
+  e->setAdditionalValue(additionalValue);
 
   for (auto it = Subscribers.begin(); it != Subscribers.end(); ++it)
   {

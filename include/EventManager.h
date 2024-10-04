@@ -53,19 +53,6 @@ enum EventStatus : uint8_t
   EventDone,
 };
 
-/* static const char *EventStatusToString(EventStatus status)
-{
-  if (status == EventWaitInvoke)
-    return "EventWaitInvoke";
-  if (status == EventInWork)
-    return "EventInWork";
-  if (status == EventRequestWait)
-    return "EventRequestWait";
-  if (status == EventDone)
-    return "EventDone";
-  return "";
-} */
-
 struct EventData
 {
 public:
@@ -95,7 +82,15 @@ public:
     _value = value;
   }
 
-  //char *ToString();
+  void setAdditionalValue(void *value)
+  {
+    additionalValue = value;
+  }
+
+  void *getAdditionalValue()
+  {
+    return additionalValue;
+  }
 
 protected:
   EventData()
@@ -118,6 +113,9 @@ protected:
 
   /// @brief Данні які необхідні події для роботи (вхідні данні або вихідні, обовязково виділені за допомогою malloc а не new)
   void *_value;
+
+  /// @brief Доаткові данні які не будуть автоматично видалятись, використовуєтся наприклад для передачі httpd_req_t в обробник події
+  void *additionalValue = nullptr;
 
   bool _isRequest = false;
 };
@@ -260,8 +258,10 @@ public:
   /// @param type тип додаваємої події (обовязково значення більше нуля)
   /// @param subtype підтип додаваємої події (обовязково значення більше нуля)
   /// @param inputData данні додаваємої події (обєкт має бути ініційований за допомогою malloc а не new)
+  /// @param isRequest якщо true то буде очікуватись обробка та повертатись відповідь з value
+  /// @param additionalValue додаткові данні які не будуть автоматично видалятись, використовуєтся наприклад для передачі httpd_req_t в обробник події
   /// @return якщо подія була додана то повертає true інакше false
-  EventData *AddEvent(uint8_t type, uint8_t subtype, void *inputData = nullptr, bool isRequest = false);
+  EventData *AddEvent(uint8_t type, uint8_t subtype, void *inputData = nullptr, bool isRequest = false, void *additionalValue = nullptr);
 
   /// @brief Підписатись на отримання подій
   /// @param type Тип подій які отримувати (0 якщо всі)
